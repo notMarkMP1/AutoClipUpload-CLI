@@ -3,7 +3,7 @@
 A personal project to make it easier for me to upload my clips to YouTube. Uses Python and YouTube's Data API to function.
 
 ## TODO:
-- [ ] Automatically upload videos from command line
+- [X] Automatically upload videos from command line
 - [ ] File selection GUI 
 - [ ] Configuration settings GUI
 - [ ] Video preview
