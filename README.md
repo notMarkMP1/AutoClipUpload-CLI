@@ -5,6 +5,7 @@ A personal project to make it easier for me to upload my clips to YouTube. Uses 
 ## TODO:
 - [X] ~~Automatically upload videos from command line~~
 - [X] ~~File selection GUI~~ 
+- [ ] Progress Bar GUI
 - [ ] Configuration settings GUI
 - [ ] Video preview
 - [ ] Trim videos

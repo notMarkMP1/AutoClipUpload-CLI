@@ -80,8 +80,12 @@ def get_authenticated_service(args):
   if credentials is None or credentials.invalid:
     credentials = run_flow(flow, storage, args)
 
+  httplib_object = httplib2.Http()
+  httplib_object.redirect_codes = httplib_object.redirect_codes - {308}
+  http = credentials.authorize(httplib_object)
+
   return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-    http=credentials.authorize(httplib2.Http()))
+    http=http)
 
 def initialize_upload(youtube, options):
   tags = None
@@ -115,7 +119,7 @@ def initialize_upload(youtube, options):
     # practice, but if you're using Python older than 2.6 or if you're
     # running on App Engine, you should set the chunksize to something like
     # 1024 * 1024 (1 megabyte).
-    media_body=MediaFileUpload(options.file, chunksize=-1, resumable=True)
+    media_body=MediaFileUpload(options.file, chunksize=4*1024*1024, resumable=True)
   )
 
   resumable_upload(insert_request)
@@ -126,10 +130,12 @@ def resumable_upload(insert_request):
   response = None
   error = None
   retry = 0
+  print("Starting upload.")
   while response is None:
     try:
-      print("Uploading file...")
       status, response = insert_request.next_chunk()
+      if status.progress() is not None:
+        print("Uploading file:", str(status.progress() * 100) + "%")
       if response is not None:
         if 'id' in response:
           print("Video id '%s' was successfully uploaded." % response['id'])
