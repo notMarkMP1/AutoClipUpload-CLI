@@ -134,7 +134,7 @@ def resumable_upload(insert_request):
   while response is None:
     try:
       status, response = insert_request.next_chunk()
-      if status.progress() is not None:
+      if status is not None:
         print("Uploading file:", str(status.progress() * 100) + "%")
       if response is not None:
         if 'id' in response:
