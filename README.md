@@ -10,7 +10,8 @@ A personal project to make it easier for me to upload my clips to YouTube. Uses 
 - [ ] Video preview
 - [ ] Trim videos
 - [ ] Compress videos
-
+- [ ] Account Switching
+ 
 ## Set-up
 
 Create client_secrets.json in the same directory as the python files.
