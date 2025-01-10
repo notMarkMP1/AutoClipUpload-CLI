@@ -1,4 +1,7 @@
-# AutoClipUploader
+# AutoClipUploader-CLI
+
+Archived in favour for the [new app version](https://github.com/notMarkMP1/AutoClipUpload). Should still work as a CLI, however.  
+
 
 A personal project to make it easier for me to upload my clips to YouTube. Uses Python and YouTube's Data API to function.
 
