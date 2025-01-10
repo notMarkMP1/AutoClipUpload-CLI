@@ -80,6 +80,7 @@ def get_authenticated_service(args):
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, YOUTUBE_UPLOAD_SCOPE)
+            flow.authorization_url(access_type='offline')
             creds = flow.run_local_server(port=8080)
 
         # Save the credentials for future use
