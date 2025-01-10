@@ -5,13 +5,12 @@ import random
 import sys
 import time
 
-from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
-from oauth2client.client import flow_from_clientsecrets
-from oauth2client.file import Storage
-from oauth2client.tools import argparser, run_flow
-
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
 # we are handling retry logic ourselves.
@@ -68,24 +67,27 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
-
 def get_authenticated_service(args):
-  flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
-    scope=YOUTUBE_UPLOAD_SCOPE,
-    message=MISSING_CLIENT_SECRETS_MESSAGE)
+    creds = None
 
-  storage = Storage("%s-oauth2.json" % sys.argv[0])
-  credentials = storage.get()
+    # Check if token.json exists to load existing credentials
+    if os.path.exists("%s-oauth2.json" % sys.argv[0]):
+        creds = Credentials.from_authorized_user_file("%s-oauth2.json" % sys.argv[0], YOUTUBE_UPLOAD_SCOPE)
 
-  if credentials is None or credentials.invalid:
-    credentials = run_flow(flow, storage, args)
+    # If credentials are not available or invalid, prompt the user to authenticate
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, YOUTUBE_UPLOAD_SCOPE)
+            creds = flow.run_local_server(port=8080)
 
-  httplib_object = httplib2.Http()
-  httplib_object.redirect_codes = httplib_object.redirect_codes - {308}
-  http = credentials.authorize(httplib_object)
+        # Save the credentials for future use
+        with open("%s-oauth2.json" % sys.argv[0], "w") as token:
+            token.write(creds.to_json())
 
-  return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-    http=http)
+    # Build the YouTube API service object
+    return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, credentials=creds)
 
 def initialize_upload(youtube, options):
   tags = None
